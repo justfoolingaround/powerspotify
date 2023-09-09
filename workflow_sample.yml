@@ -1,0 +1,40 @@
+name: PowerSpotify
+on:
+  push:
+    branches: [ master ]
+  schedule:
+    - cron: "0 */4 * * *"
+
+concurrency: 
+  group: "PowerSpotify"
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+
+      - name: Checking out repository content
+        uses: actions/checkout@v2
+
+      - name: Setting up Python 3.8
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
+
+      - name: Install requirements
+        run: |
+          choco install ngrok -y
+          pip install --upgrade pip
+          pip install -r "requirements.txt"
+      
+      - name: Run PowerSpotify code
+        run: |
+          python "powerspotify.py"
+        env:
+          PORT: ${{ secrets.PORT }}
+          SPOTIFY_USERNAME: ${{ secrets.SPOTIFY_USERNAME }}
+          SPOTIFY_PASSWORD: ${{ secrets.SPOTIFY_PASSWORD }}
+          NGROK_DOMAIN: ${{ secrets.NGROK_DOMAIN }}
+          NGROK_TOKEN: ${{ secrets.NGROK_TOKEN }}
+
